@@ -17,11 +17,27 @@
  * limitations under the License.
  */
 
-/* Test and benchmark elliptic curve and RSA functions */
+/* Test and benchmark elliptic curve functions */
+
+/* Test driver and function exerciser for Boneh-Lynn-Shacham BLS Signature API Functions */
+
+/* To reverse the groups G1 and G2, edit BLS*.go
+
+Swap G1 <-> G2
+Swap ECP <-> ECPn
+Disable G2 precomputation
+Switch G1/G2 parameter order in pairing function calls
+
+Swap G1S and G2S in this program
+
+See CPP library version for example
+
+*/
 
 package bn254_test
 
 import (
+	"encoding/hex"
 	"miracl/core"
 	"miracl/core/bn254"
 	"testing"
@@ -140,6 +156,46 @@ func TestBN254(t *testing.T) {
 
 	if !g.Equals(w) {
 		t.Error("FAILURE - e(sQ,p)!=e(Q,P)^s")
+	}
+}
+
+func TestBN254Signature(t *testing.T) {
+
+	const BGS = bn254.BGS
+	const BFS = bn254.BFS
+	const G1S = BFS + 1   /* Group 1 Size */
+	const G2S = 2*BFS + 1 /* Group 2 Size */
+
+	var S [BGS]byte
+	var W [G2S]byte
+	var SIG [G1S]byte
+	var IKM [32]byte
+
+	for i := 0; i < len(IKM); i++ {
+		IKM[i] = byte(rng.GetByte())
+	}
+
+	mess := "This is a test message"
+
+	res := bn254.Init()
+	if res != 0 {
+		t.Error("Failed to Initialize")
+	}
+
+	res = bn254.KeyPairGenerate(IKM[:], S[:], W[:])
+	if res != 0 {
+		t.Error("Failed to generate keys")
+	}
+	t.Logf("Private key: 0x%s", hex.EncodeToString(S[:]))
+	t.Logf("Public key: 0x%s", hex.EncodeToString(W[:]))
+
+	bn254.Core_Sign(SIG[:], []byte(mess), S[:])
+	t.Logf("Signature: 0x%s", hex.EncodeToString(SIG[:]))
+
+	res = bn254.Core_Verify(SIG[:], []byte(mess), W[:])
+
+	if res != 0 {
+		t.Error("Signature is *NOT* OK")
 	}
 }
 

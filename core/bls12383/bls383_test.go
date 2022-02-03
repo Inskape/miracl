@@ -17,11 +17,27 @@
  * limitations under the License.
  */
 
-/* Test and benchmark elliptic curve and RSA functions */
+/* Test and benchmark elliptic curve functions */
+
+/* Test driver and function exerciser for Boneh-Lynn-Shacham BLS Signature API Functions */
+
+/* To reverse the groups G1 and G2, edit BLS*.go
+
+Swap G1 <-> G2
+Swap ECP <-> ECPn
+Disable G2 precomputation
+Switch G1/G2 parameter order in pairing function calls
+
+Swap G1S and G2S in this program
+
+See CPP library version for example
+
+*/
 
 package bls12383_test
 
 import (
+	"encoding/hex"
 	"miracl/core"
 	"miracl/core/bls12383"
 	"testing"
@@ -72,7 +88,6 @@ func TestBls383(t *testing.T) {
 		t.Error("FAILURE - rP!=O")
 	}
 
-	// TODO: DONE
 	P = bls12383.G1mul(G, s)
 
 	Q := bls12383.ECP2_generator()
@@ -94,7 +109,6 @@ func TestBls383(t *testing.T) {
 		t.Error("FAILURE - rQ!=O")
 	}
 
-	// TODO: DONE
 	W = bls12383.G2mul(Q, s)
 
 	w := bls12383.Ate(Q, P)
@@ -144,6 +158,48 @@ func TestBls383(t *testing.T) {
 
 	if !g.Equals(w) {
 		t.Error("FAILURE - e(sQ,p)!=e(Q,P)^s")
+	}
+}
+
+func TestBLS12383Signature(t *testing.T) {
+
+	const BGS = bls12383.BGS
+	const BFS = bls12383.BFS
+	const G1S = BFS + 1   /* Group 1 Size */
+	const G2S = 2*BFS + 1 /* Group 2 Size */
+
+	var S [BGS]byte
+	var W [G2S]byte
+	var SIG [G1S]byte
+	var IKM [32]byte
+
+	for i := 0; i < len(IKM); i++ {
+		IKM[i] = byte(rng.GetByte())
+	}
+
+	mess := "This is a test message"
+
+	res := bls12383.Init()
+	if res != 0 {
+		t.Error("Failed to Initialize")
+		return
+	}
+
+	res = bls12383.KeyPairGenerate(IKM[:], S[:], W[:])
+	if res != 0 {
+		t.Error("Failed to generate keys")
+		return
+	}
+	t.Logf("Private key: 0x%s", hex.EncodeToString(S[:]))
+	t.Logf("Public key: 0x%s", hex.EncodeToString(W[:]))
+
+	bls12383.Core_Sign(SIG[:], []byte(mess), S[:])
+	t.Logf("Signature: 0x%s", hex.EncodeToString(SIG[:]))
+
+	res = bls12383.Core_Verify(SIG[:], []byte(mess), W[:])
+
+	if res != 0 {
+		t.Error("Signature is *NOT* OK")
 	}
 }
 

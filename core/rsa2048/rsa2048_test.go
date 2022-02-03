@@ -17,11 +17,13 @@
  * limitations under the License.
  */
 
-/* Test and benchmark elliptic curve and RSA functions */
+/* Test and benchmark RSA functions */
 
 package rsa2048_test
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"miracl/core"
 	"miracl/core/rsa2048"
@@ -31,13 +33,6 @@ import (
 var (
 	RAW [100]byte
 	rng *core.RAND
-
-	// PT [rsa2048.RFS]byte
-	// M  [rsa2048.RFS]byte
-	// CT [rsa2048.RFS]byte
-
-	// pub  = rsa2048.New_public_key(rsa2048.FFLEN)
-	// priv = rsa2048.New_private_key(rsa2048.HFLEN)
 )
 
 func TestMain(m *testing.M) {
@@ -81,6 +76,66 @@ func TestRsa2048(t *testing.T) {
 	fmt.Printf("All tests pass\n")
 }
 
+func TestRsa2048Ecdhe(t *testing.T) {
+	var sha = rsa2048.RSA_HASH_TYPE
+	message := "Hello World\n"
+
+	pub := rsa2048.New_public_key(rsa2048.FFLEN)
+	priv := rsa2048.New_private_key(rsa2048.HFLEN)
+
+	var ML [rsa2048.RFS]byte
+	var C [rsa2048.RFS]byte
+	var S [rsa2048.RFS]byte
+
+	rsa2048.RSA_KEY_PAIR(rng, 65537, priv, pub)
+
+	M := []byte(message)
+
+	E := core.RSA_OAEP_ENCODE(sha, M, rng, nil, rsa2048.RFS) /* OAEP encode message M to E  */
+
+	rsa2048.RSA_ENCRYPT(pub, E, C[:]) /* encrypt encoded message */
+	t.Logf("Ciphertext: 0x%s", hex.EncodeToString(C[:]))
+
+	rsa2048.RSA_DECRYPT(priv, C[:], ML[:])
+	MS := core.RSA_OAEP_DECODE(sha, nil, ML[:], rsa2048.RFS) /* OAEP decode message  */
+
+	message = string(MS)
+	t.Logf("Message: %s", message)
+
+	T := core.RSA_PSS_ENCODE(sha, M, rng, rsa2048.RFS)
+	t.Logf("T: 0x%s", hex.EncodeToString(T[:]))
+	if core.RSA_PSS_VERIFY(sha, M, T) {
+		t.Log("PSS Encoding OK")
+	} else {
+		t.Error("PSS Encoding FAILED")
+	}
+
+	// Signature
+	core.RSA_PKCS15(sha, M, C[:], rsa2048.RFS)
+
+	rsa2048.RSA_DECRYPT(priv, C[:], S[:]) /* create signature in S */
+
+	t.Logf("Signature: 0x%s", hex.EncodeToString(S[:]))
+
+	// Verification
+	valid := false
+	rsa2048.RSA_ENCRYPT(pub, S[:], ML[:])
+	core.RSA_PKCS15(sha, M, C[:], rsa2048.RFS)
+
+	if bytes.Equal(C[:], ML[:]) {
+		valid = true
+	} else {
+		core.RSA_PKCS15b(sha, M, C[:], rsa2048.RFS)
+		valid = bytes.Equal(C[:], ML[:])
+	}
+
+	if valid {
+		t.Log("Signature is valid")
+	} else {
+		t.Error("Signature is INVALID")
+	}
+}
+
 func BenchmarkRSA2048GenerateKeyPair(b *testing.B) {
 	pub := rsa2048.New_public_key(rsa2048.FFLEN)
 	priv := rsa2048.New_private_key(rsa2048.HFLEN)
@@ -93,6 +148,7 @@ func BenchmarkRSA2048GenerateKeyPair(b *testing.B) {
 
 func BenchmarkRSA2048Encrypt(b *testing.B) {
 	b.Skip("Encryption does not finish")
+	// TODO: This should be fast...
 	pub := rsa2048.New_public_key(rsa2048.FFLEN)
 
 	var M [rsa2048.RFS]byte

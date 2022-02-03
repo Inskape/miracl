@@ -17,12 +17,27 @@
  * limitations under the License.
  */
 
-/* Test and benchmark elliptic curve and RSA functions */
+/* Test and benchmark elliptic curve functions */
+
+/* Test driver and function exerciser for Boneh-Lynn-Shacham BLS Signature API Functions */
+
+/* To reverse the groups G1 and G2, edit BLS*.go
+
+Swap G1 <-> G2
+Swap ECP <-> ECPn
+Disable G2 precomputation
+Switch G1/G2 parameter order in pairing function calls
+
+Swap G1S and G2S in this program
+
+See CPP library version for example
+
+*/
 
 package bls24479_test
 
 import (
-	"fmt"
+	"encoding/hex"
 	"miracl/core"
 	"miracl/core/bls24479"
 	"testing"
@@ -45,19 +60,16 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func BLS_24(rng *core.RAND) {
-
-	fmt.Printf("\nTesting/Timing BLS24479 Pairings\n")
-
+func TestBLS24479(t *testing.T) {
 	if bls24479.CURVE_PAIRING_TYPE == bls24479.BN {
-		fmt.Printf("BN Pairing-Friendly Curve\n")
+		t.Log("BN Pairing-Friendly Curve")
 	}
 	if bls24479.CURVE_PAIRING_TYPE > bls24479.BN {
-		fmt.Printf("BLS Pairing-Friendly Curve\n")
+		t.Log("BLS Pairing-Friendly Curve")
 	}
 
-	fmt.Printf("Modulus size %d bits\n", bls24479.MODBITS)
-	fmt.Printf("%d bit build\n", core.CHUNK)
+	t.Logf("Modulus size %d bits", bls24479.MODBITS)
+	t.Logf("%d bit build", core.CHUNK)
 
 	G := bls24479.ECP_generator()
 	r := bls24479.NewBIGints(bls24479.CURVE_Order)
@@ -67,15 +79,13 @@ func BLS_24(rng *core.RAND) {
 	P := bls24479.ECP_map2point(rw)
 	P.Cfp()
 	if P.Is_infinity() {
-		fmt.Printf("HASHING FAILURE - P=O\n")
-		return
+		t.Error("HASHING FAILURE - P=O")
 	}
 
 	P = bls24479.G1mul(G, r)
 
 	if !P.Is_infinity() {
-		fmt.Printf("FAILURE - rP!=O\n")
-		return
+		t.Error("FAILURE - rP!=O")
 	}
 
 	P = bls24479.G1mul(G, s)
@@ -86,20 +96,17 @@ func BLS_24(rng *core.RAND) {
 	W := bls24479.ECP4_map2point(rz)
 	W.Cfp()
 	if W.Is_infinity() {
-		fmt.Printf("HASHING FAILURE - P=O\n")
-		return
+		t.Error("HASHING FAILURE - P=O")
 	}
 	W = bls24479.G2mul(W, r)
 	if !W.Is_infinity() {
-		fmt.Printf("FAILURE - rQ!=O\n")
-		return
+		t.Error("FAILURE - rQ!=O")
 	}
 
 	W = bls24479.G2mul(Q, r)
 
 	if !W.Is_infinity() {
-		fmt.Printf("FAILURE - rQ!=O\n")
-		return
+		t.Error("FAILURE - rQ!=O")
 	}
 
 	W = bls24479.G2mul(Q, s)
@@ -110,8 +117,7 @@ func BLS_24(rng *core.RAND) {
 	g := bls24479.GTpow(w, r)
 
 	if !g.Isunity() {
-		fmt.Printf("FAILURE - g^r!=1\n")
-		return
+		t.Error("FAILURE - g^r!=1")
 	}
 
 	P.Copy(G)
@@ -129,24 +135,20 @@ func BLS_24(rng *core.RAND) {
 	w = bls24479.Fexp(w)
 
 	if !bls24479.G1member(P) {
-		fmt.Printf("FAILURE - P not in G1 \n")
-		return
+		t.Error("FAILURE - P not in G1 ")
 	}
 
 	if !bls24479.G2member(Q) {
-		fmt.Printf("FAILURE - Q not in G2 \n")
-		return
+		t.Error("FAILURE - Q not in G2 ")
 	}
 
 	if !bls24479.GTmember(w) {
-		fmt.Printf("FAILURE - e(Q,P) not in GT \n")
-		return
+		t.Error("FAILURE - e(Q,P) not in GT ")
 
 	}
 
 	if !g.Equals(w) {
-		fmt.Printf("FAILURE - e(sQ,p)!=e(Q,sP) \n")
-		return
+		t.Error("FAILURE - e(sQ,p)!=e(Q,sP) ")
 	}
 
 	Q.Copy(W)
@@ -155,8 +157,48 @@ func BLS_24(rng *core.RAND) {
 	g = bls24479.GTpow(g, s)
 
 	if !g.Equals(w) {
-		fmt.Printf("FAILURE - e(sQ,p)!=e(Q,P)^s \n")
+		t.Error("FAILURE - e(sQ,p)!=e(Q,P)^s ")
+	}
+}
+
+func TestBLS24479Signature(t *testing.T) {
+	const BGS = bls24479.BGS
+	const BFS = bls24479.BFS
+	const G1S = BFS + 1   /* Group 1 Size */
+	const G2S = 4*BFS + 1 /* Group 2 Size */
+
+	var S [BGS]byte
+	var W [G2S]byte
+	var SIG [G1S]byte
+	var IKM [48]byte
+
+	for i := 0; i < len(IKM); i++ {
+		IKM[i] = byte(rng.GetByte())
+	}
+
+	mess := "This is a test message"
+
+	res := bls24479.Init()
+	if res != 0 {
+		t.Error("Failed to Initialize")
 		return
+	}
+
+	res = bls24479.KeyPairGenerate(IKM[:], S[:], W[:])
+	if res != 0 {
+		t.Error("Failed to generate keys")
+		return
+	}
+	t.Logf("Private key: 0x%s", hex.EncodeToString(S[:]))
+	t.Logf("Public key: 0x%s", hex.EncodeToString(W[:]))
+
+	bls24479.Core_Sign(SIG[:], []byte(mess), S[:])
+	t.Logf("Signature: 0x%s", hex.EncodeToString(SIG[:]))
+
+	res = bls24479.Core_Verify(SIG[:], []byte(mess), W[:])
+
+	if res != 0 {
+		t.Error("Signature is *NOT* OK")
 	}
 }
 

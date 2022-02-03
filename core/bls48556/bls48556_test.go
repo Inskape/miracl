@@ -17,12 +17,27 @@
  * limitations under the License.
  */
 
-/* Test and benchmark elliptic curve and RSA functions */
+/* Test and benchmark elliptic curve functions */
+
+/* Test driver and function exerciser for Boneh-Lynn-Shacham BLS Signature API Functions */
+
+/* To reverse the groups G1 and G2, edit BLS*.go
+
+Swap G1 <-> G2
+Swap ECP <-> ECPn
+Disable G2 precomputation
+Switch G1/G2 parameter order in pairing function calls
+
+Swap G1S and G2S in this program
+
+See CPP library version for example
+
+*/
 
 package bls48556_test
 
 import (
-	"fmt"
+	"encoding/hex"
 	"miracl/core"
 	"miracl/core/bls48556"
 	"testing"
@@ -45,19 +60,16 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func BLS_48(rng *core.RAND) {
-
-	fmt.Printf("\nTesting/Timing BLS48556 Pairings\n")
-
+func TestBLS48556(t *testing.T) {
 	if bls48556.CURVE_PAIRING_TYPE == bls48556.BN {
-		fmt.Printf("BN Pairing-Friendly Curve\n")
+		t.Log("BN Pairing-Friendly Curve")
 	}
 	if bls48556.CURVE_PAIRING_TYPE > bls48556.BN {
-		fmt.Printf("BLS Pairing-Friendly Curve\n")
+		t.Log("BLS Pairing-Friendly Curve")
 	}
 
-	fmt.Printf("Modulus size %d bits\n", bls48556.MODBITS)
-	fmt.Printf("%d bit build\n", core.CHUNK)
+	t.Logf("Modulus size %d bits", bls48556.MODBITS)
+	t.Logf("%d bit build", core.CHUNK)
 
 	G := bls48556.ECP_generator()
 	r := bls48556.NewBIGints(bls48556.CURVE_Order)
@@ -67,15 +79,13 @@ func BLS_48(rng *core.RAND) {
 	P := bls48556.ECP_map2point(rw)
 	P.Cfp()
 	if P.Is_infinity() {
-		fmt.Printf("HASHING FAILURE - P=O\n")
-		return
+		t.Error("HASHING FAILURE - P=O")
 	}
 
 	P = bls48556.G1mul(G, r)
 
 	if !P.Is_infinity() {
-		fmt.Printf("FAILURE - rP!=O\n")
-		return
+		t.Error("FAILURE - rP!=O")
 	}
 
 	P = bls48556.G1mul(G, s)
@@ -86,20 +96,17 @@ func BLS_48(rng *core.RAND) {
 	W := bls48556.ECP8_map2point(rz)
 	W.Cfp()
 	if W.Is_infinity() {
-		fmt.Printf("HASHING FAILURE - P=O\n")
-		return
+		t.Error("HASHING FAILURE - P=O")
 	}
 	W = bls48556.G2mul(W, r)
 	if !W.Is_infinity() {
-		fmt.Printf("FAILURE - rQ!=O\n")
-		return
+		t.Error("FAILURE - rQ!=O")
 	}
 
 	W = bls48556.G2mul(Q, r)
 
 	if !W.Is_infinity() {
-		fmt.Printf("FAILURE - rQ!=O\n")
-		return
+		t.Error("FAILURE - rQ!=O")
 	}
 
 	W = bls48556.G2mul(Q, s)
@@ -110,8 +117,7 @@ func BLS_48(rng *core.RAND) {
 	g := bls48556.GTpow(w, r)
 
 	if !g.Isunity() {
-		fmt.Printf("FAILURE - g^r!=1\n")
-		return
+		t.Error("FAILURE - g^r!=1")
 	}
 
 	P.Copy(G)
@@ -129,24 +135,20 @@ func BLS_48(rng *core.RAND) {
 	w = bls48556.Fexp(w)
 
 	if !bls48556.G1member(P) {
-		fmt.Printf("FAILURE - P not in G1 \n")
-		return
+		t.Error("FAILURE - P not in G1")
 	}
 
 	if !bls48556.G2member(Q) {
-		fmt.Printf("FAILURE - Q not in G2 \n")
-		return
+		t.Error("FAILURE - Q not in G2")
 	}
 
 	if !bls48556.GTmember(w) {
-		fmt.Printf("FAILURE - e(Q,P) not in GT \n")
-		return
+		t.Error("FAILURE - e(Q,P) not in GT")
 
 	}
 
 	if !g.Equals(w) {
-		fmt.Printf("FAILURE - e(sQ,p)!=e(Q,sP) \n")
-		return
+		t.Error("FAILURE - e(sQ,p)!=e(Q,sP)")
 	}
 
 	Q.Copy(W)
@@ -155,10 +157,51 @@ func BLS_48(rng *core.RAND) {
 	g = bls48556.GTpow(g, s)
 
 	if !g.Equals(w) {
-		fmt.Printf("FAILURE - e(sQ,p)!=e(Q,P)^s \n")
+		t.Error("FAILURE - e(sQ,p)!=e(Q,P)^s")
+	}
+
+}
+
+func TestBLS48556Signature(t *testing.T) {
+
+	const BGS = bls48556.BGS
+	const BFS = bls48556.BFS
+	const G1S = BFS + 1   /* Group 1 Size */
+	const G2S = 8*BFS + 1 /* Group 2 Size */
+
+	var S [BGS]byte
+	var W [G2S]byte
+	var SIG [G1S]byte
+	var IKM [64]byte
+
+	for i := 0; i < len(IKM); i++ {
+		IKM[i] = byte(rng.GetByte())
+	}
+
+	mess := "This is a test message"
+
+	res := bls48556.Init()
+	if res != 0 {
+		t.Error("Failed to Initialize")
 		return
 	}
 
+	res = bls48556.KeyPairGenerate(IKM[:], S[:], W[:])
+	if res != 0 {
+		t.Error("Failed to generate keys")
+		return
+	}
+	t.Logf("Private key: 0x%s", hex.EncodeToString(S[:]))
+	t.Logf("Public key: 0x%s", hex.EncodeToString(W[:]))
+
+	bls48556.Core_Sign(SIG[:], []byte(mess), S[:])
+	t.Logf("Signature: 0x%s", hex.EncodeToString(SIG[:]))
+
+	res = bls48556.Core_Verify(SIG[:], []byte(mess), W[:])
+
+	if res != 0 {
+		t.Error("Signature is *NOT* OK")
+	}
 }
 
 func BenchmarkBls48556G1Mul(b *testing.B) {
