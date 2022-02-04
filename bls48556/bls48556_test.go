@@ -40,8 +40,8 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/Inskape/miracl/bls48556"
 	"github.com/Inskape/miracl/core"
-	"github.com/Inskape/miracl/core/bls48556"
 )
 
 var (

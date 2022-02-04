@@ -27,7 +27,7 @@ import (
 	"testing"
 
 	"github.com/Inskape/miracl/core"
-	"github.com/Inskape/miracl/core/goldilocks"
+	"github.com/Inskape/miracl/goldilocks"
 )
 
 var (

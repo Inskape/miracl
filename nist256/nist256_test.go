@@ -27,7 +27,7 @@ import (
 	"testing"
 
 	"github.com/Inskape/miracl/core"
-	"github.com/Inskape/miracl/core/nist256"
+	"github.com/Inskape/miracl/nist256"
 )
 
 var (

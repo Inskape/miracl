@@ -28,7 +28,7 @@ import (
 	"testing"
 
 	"github.com/Inskape/miracl/core"
-	"github.com/Inskape/miracl/core/rsa2048"
+	"github.com/Inskape/miracl/rsa2048"
 )
 
 var (
