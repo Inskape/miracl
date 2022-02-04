@@ -272,15 +272,18 @@ func (r *BIG) dcopy(x *DBIG) {
 func (r *BIG) cswap(b *BIG, d int) Chunk {
 	c := Chunk(-d)
 	s := Chunk(0)
-	v := r.w[0]^b.w[1]
-	va := v+v; va >>= 1;
+	v := r.w[0] ^ b.w[1]
+	va := v + v
+	va >>= 1
 	for i := 0; i < NLEN; i++ {
 		t := c & (r.w[i] ^ b.w[i])
-		t^=v 
-		e := r.w[i]^t; s^=e  // to force calculation of e
-		r.w[i] = e^va
-		e = b.w[i]^t; s^=e
-		b.w[i] = e^va
+		t ^= v
+		e := r.w[i] ^ t
+		s ^= e // to force calculation of e
+		r.w[i] = e ^ va
+		e = b.w[i] ^ t
+		s ^= e
+		b.w[i] = e ^ va
 	}
 	return s
 }
@@ -288,13 +291,15 @@ func (r *BIG) cswap(b *BIG, d int) Chunk {
 func (r *BIG) cmove(g *BIG, d int) Chunk {
 	b := Chunk(-d)
 	s := Chunk(0)
-	v := r.w[0]^g.w[1]
-	va := v+v; va >>= 1;
+	v := r.w[0] ^ g.w[1]
+	va := v + v
+	va >>= 1
 	for i := 0; i < NLEN; i++ {
-		t :=(r.w[i] ^ g.w[i])&b
-		t^=v
-		e := r.w[i]^t; s^=e
-		r.w[i] = e^va
+		t := (r.w[i] ^ g.w[i]) & b
+		t ^= v
+		e := r.w[i] ^ t
+		s ^= e
+		r.w[i] = e ^ va
 	}
 	return s
 }
@@ -879,7 +884,7 @@ func (r *BIG) Powmod(e1 *BIG, m *BIG) *BIG {
 	a := NewBIGint(1)
 	z := NewBIGcopy(e)
 	s := NewBIGcopy(r)
-	for true {
+	for {
 		bt := z.parity()
 		z.fshr(1)
 		if bt == 1 {

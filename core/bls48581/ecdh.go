@@ -69,9 +69,7 @@ func ECDH_IN_RANGE(S []byte) bool {
 func ECDH_KEY_PAIR_GENERATE(RNG *core.RAND, S []byte, W []byte) int {
 	res := 0
 	var s *BIG
-	var G *ECP
-
-	G = ECP_generator()
+	G := ECP_generator()
 	r := NewBIGints(CURVE_Order)
 
 	if RNG == nil {
@@ -318,10 +316,7 @@ func ncomp(T1 []byte, T2 []byte, n int) bool {
 	for i := 0; i < n; i++ {
 		res |= int(T1[i] ^ T2[i])
 	}
-	if res == 0 {
-		return true
-	}
-	return false
+	return res == 0
 }
 
 /* IEEE1363 ECIES decryption. Decryption of ciphertext V,C,T using private key U outputs plaintext M */

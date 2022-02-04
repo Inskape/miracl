@@ -365,7 +365,7 @@ func (F *FP16) pow(e *BIG) *FP16 {
 	z := NewBIGcopy(e)
 	r := NewFP16int(1)
 	z.norm()
-	for true {
+	for {
 		bt := z.parity()
 		z.fshr(1)
 		if bt == 1 {

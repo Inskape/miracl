@@ -107,11 +107,7 @@ func (E *ECP8) Equals(Q *ECP8) bool {
 	b.copy(Q.y)
 	a.mul(Q.z)
 	b.mul(E.z)
-	if !a.Equals(b) {
-		return false
-	}
-
-	return true
+	return a.Equals(b)
 }
 
 /* set to Affine - (x,y,z) to (x,y) */
@@ -700,8 +696,7 @@ func (E *ECP8) Cfp() {
 }
 
 func ECP8_generator() *ECP8 {
-	var G *ECP8
-	G = NewECP8fp8s(
+	G := NewECP8fp8s(
 		NewFP8fp4s(
 			NewFP4fp2s(
 				NewFP2bigs(NewBIGints(CURVE_Pxaaa), NewBIGints(CURVE_Pxaab)),
@@ -726,7 +721,7 @@ func ECP8_hap2point(h *BIG) *ECP8 {
 	var X4 *FP4
 	var X8 *FP8
 	var Q *ECP8
-	for true {
+	for {
 		X2 = NewFP2bigs(one, x)
 		X4 = NewFP4fp2(X2)
 		X8 = NewFP8fp4(X4)

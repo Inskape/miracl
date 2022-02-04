@@ -418,10 +418,7 @@ func (F *FP) Equals(a *FP) bool {
 
 	s.reduce()
 	f.reduce()
-	if Comp(s.x, f.x) == 0 {
-		return true
-	}
-	return false
+	return Comp(s.x, f.x) == 0
 }
 
 func (F *FP) pow(e *BIG) *FP {
