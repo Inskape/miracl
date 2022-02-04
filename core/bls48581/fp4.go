@@ -25,7 +25,7 @@ package bls48581
 
 import "miracl/core"
 
-
+//import "fmt"
 
 type FP4 struct {
 	a *FP2
@@ -695,7 +695,7 @@ func (F *FP4) qr(h *FP) int {
 }
 
 // sqrt(a+ib) = sqrt(a+sqrt(a*a-n*b*b)/2)+ib/(2*sqrt(a+sqrt(a*a-n*b*b)/2))
-func (F *FP4) sqrt(h *FP) {
+func (F *FP4) sqrt(h *FP)  {
 	if F.iszilch() {
 		return
 	}
@@ -712,9 +712,8 @@ func (F *FP4) sqrt(h *FP) {
 	s.norm()
 	a.sub(s)
 
-	s.copy(a)
-	s.norm()
-	s.sqrt(h)
+	s.copy(a); s.norm()
+	s.sqrt(h);
 
 	a.copy(t)
 	b.copy(t)
@@ -723,37 +722,31 @@ func (F *FP4) sqrt(h *FP) {
 	a.norm()
 	a.div2()
 
-	b.copy(F.b)
-	b.div2()
-	qr := a.qr(hint)
 
-	// tweak hint - multiply old hint by Norm(1/Beta)^e where Beta is irreducible polynomial
-	s.copy(a)
-	twk := NewFPbig(NewBIGints(TWK))
-	twk.mul(hint)
-	s.div_ip()
-	s.norm()
+    b.copy(F.b); b.div2()
+    qr:=a.qr(hint)
 
-	a.cmove(s, 1-qr)
-	hint.cmove(twk, 1-qr)
+// tweak hint - multiply old hint by Norm(1/Beta)^e where Beta is irreducible polynomial
+    s.copy(a)
+	twk:=NewFPbig(NewBIGints(TWK))
+    twk.mul(hint)
+    s.div_ip(); s.norm()
 
-	F.a.copy(a)
-	F.a.sqrt(hint)
-	s.copy(a)
-	s.inverse(hint)
-	s.mul(F.a)
-	F.b.copy(s)
-	F.b.mul(b)
-	t.copy(F.a)
+    a.cmove(s,1-qr)
+    hint.cmove(twk,1-qr)
 
-	F.a.cmove(F.b, 1-qr)
-	F.b.cmove(t, 1-qr)
+    F.a.copy(a); F.a.sqrt(hint)
+    s.copy(a); s.inverse(hint)
+    s.mul(F.a)
+    F.b.copy(s); F.b.mul(b)
+    t.copy(F.a);
 
-	sgn := F.sign()
-	nr := NewFP4copy(F)
-	nr.neg()
-	nr.norm()
-	F.cmove(nr, sgn)
+    F.a.cmove(F.b,1-qr);
+    F.b.cmove(t,1-qr);
+
+	sgn:=F.sign()
+	nr:=NewFP4copy(F)
+	nr.neg(); nr.norm()
+	F.cmove(nr,sgn)
 }
-
 /* */

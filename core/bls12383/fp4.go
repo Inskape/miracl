@@ -25,7 +25,7 @@ package bls12383
 
 import "miracl/core"
 
-
+//import "fmt"
 
 type FP4 struct {
 	a *FP2

@@ -22,7 +22,7 @@
 
 package bls48581
 
-
+//import "fmt"
 
 type FP48 struct {
 	a     *FP16

@@ -22,6 +22,7 @@
 
 package rsa2048
 
+//import "fmt"
 //import "os"
 import "miracl/core"
 
@@ -31,11 +32,11 @@ import "miracl/core"
 //const HFLEN int = (FFLEN / 2)         /* Useful for half-size RSA private key operations */
 
 //const P_MBITS uint = MODBYTES * 8
-//const P_OMASK core.Chunk = (core.Chunk(-1) << (P_MBITS % BASEBITS))
-//const P_FEXCESS core.Chunk = (core.Chunk(1) << (BASEBITS*uint(NLEN) - P_MBITS - 1))
+//const P_OMASK Chunk = (Chunk(-1) << (P_MBITS % BASEBITS))
+//const P_FEXCESS Chunk = (Chunk(1) << (BASEBITS*uint(NLEN) - P_MBITS - 1))
 //const P_TBITS uint = (P_MBITS % BASEBITS)
 
-func FF_EXCESS(a *BIG) core.Chunk {
+func FF_EXCESS(a *BIG) Chunk {
 	return ((a.w[NLEN-1] & P_OMASK) >> (P_TBITS)) + 1
 }
 
@@ -89,7 +90,7 @@ func (F *FF) getlen() int {
 /* set to integer */
 func (F *FF) set(m int) {
 	F.zero()
-	F.v[0].set(0, core.Chunk(m))
+	F.v[0].set(0, Chunk(m))
 }
 
 /* copy from FF b */
@@ -229,7 +230,7 @@ func (F *FF) revsub(b *FF) {
 /* normalise - but hold any overflow in top part unless n<0 */
 func (F *FF) rnorm(vp int, n int) {
 	trunc := false
-	var carry core.Chunk
+	var carry Chunk
 	if n < 0 { /* -v n signals to do truncation */
 		n = -n
 		trunc = true
@@ -266,7 +267,7 @@ func (F *FF) shl() {
 	for i := 0; i < F.length-1; i++ {
 		carry := F.v[i].fshl(1)
 		F.v[i].inc(delay_carry)
-		F.v[i].xortop(core.Chunk(carry) << P_TBITS)
+		F.v[i].xortop(Chunk(carry) << P_TBITS)
 		delay_carry = int(carry)
 	}
 	F.v[F.length-1].fshl(1)
@@ -278,7 +279,7 @@ func (F *FF) shl() {
 func (F *FF) shr() {
 	for i := F.length - 1; i > 0; i-- {
 		carry := F.v[i].fshr(1)
-		F.v[i-1].xortop(core.Chunk(carry) << P_TBITS)
+		F.v[i-1].xortop(Chunk(carry) << P_TBITS)
 	}
 	F.v[0].fshr(1)
 }
@@ -588,7 +589,7 @@ func (F *FF) redc(m *FF, ND *FF) {
 	n := m.length
 	if n == 1 {
 		d := NewDBIGscopy(F.v[0])
-		F.v[0].copy(monty(m.v[0], (core.Chunk(1)<<BASEBITS)-ND.v[0].w[0], d))
+		F.v[0].copy(monty(m.v[0], (Chunk(1)<<BASEBITS)-ND.v[0].w[0], d))
 	} else {
 		d := NewFFint(2 * n)
 		F.mod(m)
@@ -674,7 +675,7 @@ func (F *FF) modmul(y *FF, p *FF, nd *FF) {
 	n := p.length
 	if n == 1 {
 		d := mul(F.v[0], y.v[0])
-		F.v[0].copy(monty(p.v[0], (core.Chunk(1)<<BASEBITS)-nd.v[0].w[0], d))
+		F.v[0].copy(monty(p.v[0], (Chunk(1)<<BASEBITS)-nd.v[0].w[0], d))
 	} else {
 		d := ff_mul(F, y)
 		F.copy(d.reduce(p, nd))
@@ -689,7 +690,7 @@ func (F *FF) modsqr(p *FF, nd *FF) {
 	n := p.length
 	if n == 1 {
 		d := sqr(F.v[0])
-		F.v[0].copy(monty(p.v[0], (core.Chunk(1)<<BASEBITS)-nd.v[0].w[0], d))
+		F.v[0].copy(monty(p.v[0], (Chunk(1)<<BASEBITS)-nd.v[0].w[0], d))
 	} else {
 		d := ff_sqr(F)
 		F.copy(d.reduce(p, nd))

@@ -23,7 +23,7 @@
 
 package nist384
 
-
+//import "fmt"
 import "miracl/core"
 
 func reverse(X []byte) {

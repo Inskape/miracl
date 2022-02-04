@@ -21,7 +21,7 @@
 
 package bls48556
 
-
+//import "fmt"
 
 type ECP8 struct {
 	x *FP8

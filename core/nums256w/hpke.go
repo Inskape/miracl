@@ -23,7 +23,7 @@
 
 package nums256w
 
-
+//import "fmt"
 import "miracl/core"
 
 func reverse(X []byte) {

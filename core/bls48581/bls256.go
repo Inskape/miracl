@@ -27,7 +27,7 @@ package bls48581
 
 import "miracl/core"
 
-
+//import "fmt"
 
 const BFS int = int(MODBYTES)
 const BGS int = int(MODBYTES)

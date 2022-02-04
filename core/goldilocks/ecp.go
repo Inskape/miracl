@@ -19,7 +19,7 @@
 
 package goldilocks
 
-
+//import "fmt"
 /* Elliptic Curve Point Structure */
 
 type ECP struct {

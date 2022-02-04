@@ -22,7 +22,7 @@
 
 package bls12443
 
-
+//import "fmt"
 
 type FP12 struct {
 	a     *FP4

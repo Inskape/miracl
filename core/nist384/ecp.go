@@ -19,7 +19,7 @@
 
 package nist384
 
-
+//import "fmt"
 /* Elliptic Curve Point Structure */
 
 type ECP struct {

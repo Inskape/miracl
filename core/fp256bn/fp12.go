@@ -22,7 +22,7 @@
 
 package fp256bn
 
-
+//import "fmt"
 
 type FP12 struct {
 	a     *FP4

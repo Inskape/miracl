@@ -19,7 +19,7 @@
 
 package secp160r1
 
-
+//import "fmt"
 /* Elliptic Curve Point Structure */
 
 type ECP struct {

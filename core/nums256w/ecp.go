@@ -19,7 +19,7 @@
 
 package nums256w
 
-
+//import "fmt"
 /* Elliptic Curve Point Structure */
 
 type ECP struct {

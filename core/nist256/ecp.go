@@ -19,6 +19,7 @@
 
 package nist256
 
+//import "fmt"
 /* Elliptic Curve Point Structure */
 
 type ECP struct {

@@ -21,7 +21,6 @@
 
 package rsa3072
 
-
 import "miracl/core"
 
 const RFS int = int(MODBYTES) * FFLEN

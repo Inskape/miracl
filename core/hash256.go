@@ -28,6 +28,7 @@
 
 package core
 
+//import "fmt"
 const SHA256 int = 32
 
 const hash256_H0 uint32 = 0x6A09E667

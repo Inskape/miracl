@@ -21,7 +21,7 @@
 
 package bls12461
 
-
+//import "fmt"
 
 // Point doubling for pairings
 func dbl(A *ECP2, AA *FP2, BB *FP2, CC *FP2) {
@@ -786,35 +786,35 @@ func glv(ee *BIG) []*BIG {
 	var u []*BIG
 	q := NewBIGints(CURVE_Order)
 	if CURVE_PAIRING_TYPE == BN {
-		/* PFBNS
-				t := NewBIGint(0)
-				var v []*BIG
+/* PFBNS
+		t := NewBIGint(0)
+		var v []*BIG
 
-				for i := 0; i < 2; i++ {
-					t.copy(NewBIGints(CURVE_W[i])) // why not just t=new BIG(ROM.CURVE_W[i]);
-					d := mul(t, ee)
-					v = append(v, NewBIGcopy(d.ctdiv(q,uint(t.nbits()))))
-					u = append(u, NewBIGint(0))
-				}
-				u[0].copy(ee)
-				for i := 0; i < 2; i++ {
-					for j := 0; j < 2; j++ {
-						t.copy(NewBIGints(CURVE_SB[j][i]))
-						t.copy(Modmul(v[j], t, q))
-						u[i].add(q)
-						u[i].sub(t)
-						u[i].ctmod(q,1)
-					}
-				}
-		PFBNF */
+		for i := 0; i < 2; i++ {
+			t.copy(NewBIGints(CURVE_W[i])) // why not just t=new BIG(ROM.CURVE_W[i]);
+			d := mul(t, ee)
+			v = append(v, NewBIGcopy(d.ctdiv(q,uint(t.nbits()))))
+			u = append(u, NewBIGint(0))
+		}
+		u[0].copy(ee)
+		for i := 0; i < 2; i++ {
+			for j := 0; j < 2; j++ {
+				t.copy(NewBIGints(CURVE_SB[j][i]))
+				t.copy(Modmul(v[j], t, q))
+				u[i].add(q)
+				u[i].sub(t)
+				u[i].ctmod(q,1)
+			}
+		}
+PFBNF */
 	} else {
 		x := NewBIGints(CURVE_Bnx)
 		x2 := smul(x, x)
-		bd := uint(q.nbits() - x2.nbits())
+		bd := uint(q.nbits()-x2.nbits())
 		u = append(u, NewBIGcopy(ee))
-		u[0].ctmod(x2, bd)
+		u[0].ctmod(x2,bd)
 		u = append(u, NewBIGcopy(ee))
-		u[1].ctdiv(x2, bd)
+		u[1].ctdiv(x2,bd)
 		u[1].rsub(q)
 	}
 	return u
@@ -825,36 +825,36 @@ func gs(ee *BIG) []*BIG {
 	var u []*BIG
 	q := NewBIGints(CURVE_Order)
 	if CURVE_PAIRING_TYPE == BN {
-		/* PFBNS
-				t := NewBIGint(0)
+/* PFBNS
+		t := NewBIGint(0)
 
-				var v []*BIG
-				for i := 0; i < 4; i++ {
-					t.copy(NewBIGints(CURVE_WB[i]))
-					d := mul(t, ee)
-					v = append(v, NewBIGcopy(d.ctdiv(q,uint(t.nbits()))))
-					u = append(u, NewBIGint(0))
-				}
-				u[0].copy(ee)
-				for i := 0; i < 4; i++ {
-					for j := 0; j < 4; j++ {
-						t.copy(NewBIGints(CURVE_BB[j][i]))
-						t.copy(Modmul(v[j], t, q))
-						u[i].add(q)
-						u[i].sub(t)
-						u[i].ctmod(q,1)
-					}
-				}
-		PFBNF */
+		var v []*BIG
+		for i := 0; i < 4; i++ {
+			t.copy(NewBIGints(CURVE_WB[i]))
+			d := mul(t, ee)
+			v = append(v, NewBIGcopy(d.ctdiv(q,uint(t.nbits()))))
+			u = append(u, NewBIGint(0))
+		}
+		u[0].copy(ee)
+		for i := 0; i < 4; i++ {
+			for j := 0; j < 4; j++ {
+				t.copy(NewBIGints(CURVE_BB[j][i]))
+				t.copy(Modmul(v[j], t, q))
+				u[i].add(q)
+				u[i].sub(t)
+				u[i].ctmod(q,1)
+			}
+		}
+PFBNF */
 	} else {
 		x := NewBIGints(CURVE_Bnx)
-		bd := uint(q.nbits() - x.nbits())
+		bd := uint(q.nbits()-x.nbits())
 
 		w := NewBIGcopy(ee)
 		for i := 0; i < 3; i++ {
 			u = append(u, NewBIGcopy(w))
-			u[i].ctmod(x, bd)
-			w.ctdiv(x, bd)
+			u[i].ctmod(x,bd)
+			w.ctdiv(x,bd)
 		}
 		u = append(u, NewBIGcopy(w))
 		if SIGN_OF_X == NEGATIVEX {
@@ -869,8 +869,7 @@ func gs(ee *BIG) []*BIG {
 func G1mul(P *ECP, e *BIG) *ECP {
 	var R *ECP
 	q := NewBIGints(CURVE_Order)
-	ee := NewBIGcopy(e)
-	ee.Mod(q)
+	ee:= NewBIGcopy(e); ee.Mod(q)
 	if USE_GLV {
 		R = NewECP()
 		R.Copy(P)
@@ -903,7 +902,7 @@ func G1mul(P *ECP, e *BIG) *ECP {
 		R = R.Mul2(u[0], Q, u[1])
 
 	} else {
-		R = P.clmul(ee, q)
+		R = P.clmul(ee,q)
 	}
 	return R
 }
@@ -912,8 +911,7 @@ func G1mul(P *ECP, e *BIG) *ECP {
 func G2mul(P *ECP2, e *BIG) *ECP2 {
 	var R *ECP2
 	q := NewBIGints(CURVE_Order)
-	ee := NewBIGcopy(e)
-	ee.Mod(q)
+	ee:= NewBIGcopy(e); ee.Mod(q)
 	if USE_GS_G2 {
 		var Q []*ECP2
 		f := NewFP2bigs(NewBIGints(Fra), NewBIGints(Frb))
@@ -956,8 +954,7 @@ func G2mul(P *ECP2, e *BIG) *ECP2 {
 func GTpow(d *FP12, e *BIG) *FP12 {
 	var r *FP12
 	q := NewBIGints(CURVE_Order)
-	ee := NewBIGcopy(e)
-	ee.Mod(q)
+	ee:= NewBIGcopy(e); ee.Mod(q)
 	if USE_GS_GT {
 		var g []*FP12
 		f := NewFP2bigs(NewBIGints(Fra), NewBIGints(Frb))
@@ -991,33 +988,25 @@ func GTpow(d *FP12, e *BIG) *FP12 {
 /* test G1 group membership */
 func G1member(P *ECP) bool {
 	//q := NewBIGints(CURVE_Order)
-	if P.Is_infinity() {
-		return false
-	}
+	if P.Is_infinity() {return false}
 	if CURVE_PAIRING_TYPE != BN {
 		x := NewBIGints(CURVE_Bnx)
 		cru := NewFPbig(NewBIGints(CRu))
-		W := NewECP()
-		W.Copy(P)
+		W := NewECP(); W.Copy(P)
 		W.getx().mul(cru)
 		T := P.mul(x)
-		if P.Equals(T) {
-			return false
-		} // P is of low order
-		T = T.mul(x)
-		T.Neg()
-		if !W.Equals(T) {
-			return false
-		}
+		if P.Equals(T) {return false}    // P is of low order     		
+		T=T.mul(x); T.Neg()
+		if !W.Equals(T) {return false}
 
-		// Not needed
-		//		W.Add(P);
-		//		T.getx().mul(cru)
-		//		W.Add(T)
-		//		if !W.Is_infinity() {return false}
-		/*
-			W:=P.mul(q)
-			if !W.Is_infinity() {return false} */
+// Not needed
+//		W.Add(P);
+//		T.getx().mul(cru)
+//		W.Add(T)
+//		if !W.Is_infinity() {return false}
+/*
+		W:=P.mul(q)
+		if !W.Is_infinity() {return false} */
 	}
 	return true
 }
@@ -1030,37 +1019,33 @@ func G2member(P *ECP2) bool {
 		f.norm()
 	}
 	x := NewBIGints(CURVE_Bnx)
-	W := NewECP2()
-	W.Copy(P)
-	W.frob(f)
+	W := NewECP2(); W.Copy(P); W.frob(f)
 	T := P.mul(x)
 	if CURVE_PAIRING_TYPE == BN {
-		T = T.mul(x)
-		six := NewBIGint(6)
-		T = T.mul(six)
+		T=T.mul(x)
+		six:=NewBIGint(6)
+		T=T.mul(six)
 	} else {
 		if SIGN_OF_X == NEGATIVEX {
 			T.neg()
 		}
 	}
-	/*
-	   	R:=NewECP2(); R.Copy(W)
-	       R.frob(f)
-	       W.Sub(R)
-	       R.Copy(T)
-	       R.frob(f)
-	       W.Add(R)
-	*/
-	if !W.Equals(T) {
-		return false
-	}
+/*
+	R:=NewECP2(); R.Copy(W)
+    R.frob(f)
+    W.Sub(R)
+    R.Copy(T)
+    R.frob(f)
+    W.Add(R)
+*/
+	if !W.Equals(T) {return false}
 	return true
-	/*
-		q := NewBIGints(CURVE_Order)
-		if P.Is_infinity() {return false}
-		W:=P.mul(q)
-		if !W.Is_infinity() {return false}
-		return true */
+/*
+	q := NewBIGints(CURVE_Order)
+	if P.Is_infinity() {return false}
+	W:=P.mul(q)
+	if !W.Is_infinity() {return false}
+	return true */
 }
 
 /* Check that m is in cyclotomic sub-group */
@@ -1100,28 +1085,25 @@ func GTmember(m *FP12) bool {
 	f := NewFP2bigs(NewBIGints(Fra), NewBIGints(Frb))
 	x := NewBIGints(CURVE_Bnx)
 
-	r := NewFP12copy(m)
-	r.frob(f)
+	r := NewFP12copy(m); r.frob(f)
 	t := m.Pow(x)
 
 	if CURVE_PAIRING_TYPE == BN {
-		t = t.Pow(x)
-		six := NewBIGint(6)
-		t = t.Pow(six)
+		t=t.Pow(x)
+		six:=NewBIGint(6)
+		t=t.Pow(six)
 	} else {
 		if SIGN_OF_X == NEGATIVEX {
 			t.conj()
 		}
 	}
-	if !r.Equals(t) {
-		return false
-	}
+	if !r.Equals(t) {return false}
 	return true
-	/*
-		q := NewBIGints(CURVE_Order)
-		r := m.Pow(q)
-		if !r.Isunity() {
-			return false
-		}
-		return true */
+/*
+	q := NewBIGints(CURVE_Order)
+	r := m.Pow(q)
+	if !r.Isunity() {
+		return false
+	} 
+	return true */
 }

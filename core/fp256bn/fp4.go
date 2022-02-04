@@ -25,7 +25,7 @@ package fp256bn
 
 import "miracl/core"
 
-
+//import "fmt"
 
 type FP4 struct {
 	a *FP2

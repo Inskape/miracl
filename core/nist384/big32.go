@@ -30,12 +30,14 @@ import (
 	"miracl/core"
 )
 
+//import "fmt"
+
 type BIG struct {
-	w [NLEN]core.Chunk
+	w [NLEN]Chunk
 }
 
 type DBIG struct {
-	w [2 * NLEN]core.Chunk
+	w [2 * NLEN]Chunk
 }
 
 /***************** 32-bit specific code ****************/
@@ -49,23 +51,23 @@ func mul(a *BIG, b *BIG) *DBIG {
 
 	//	BIGMULS+=1;
 
-	var d [NLEN]core.DChunk
+	var d [NLEN]DChunk
 
 	for i := 0; i < NLEN; i++ {
-		d[i] = core.DChunk(a.w[i]) * core.DChunk(b.w[i])
+		d[i] = DChunk(a.w[i]) * DChunk(b.w[i])
 	}
 	s := d[0]
 	t := s
-	c.w[0] = core.Chunk(t) & BMASK
+	c.w[0] = Chunk(t) & BMASK
 	co := t >> BASEBITS
 
 	for k := 1; k < NLEN; k++ {
 		s += d[k]
 		t = co + s
 		for i := k; i >= 1+k/2; i-- {
-			t += core.DChunk(a.w[i]-a.w[k-i]) * core.DChunk(b.w[k-i]-b.w[i])
+			t += DChunk(a.w[i]-a.w[k-i]) * DChunk(b.w[k-i]-b.w[i])
 		}
-		c.w[k] = core.Chunk(t) & BMASK
+		c.w[k] = Chunk(t) & BMASK
 		co = t >> BASEBITS
 	}
 
@@ -73,12 +75,12 @@ func mul(a *BIG, b *BIG) *DBIG {
 		s -= d[k-NLEN]
 		t = co + s
 		for i := NLEN - 1; i >= 1+k/2; i-- {
-			t += core.DChunk(a.w[i]-a.w[k-i]) * core.DChunk(b.w[k-i]-b.w[i])
+			t += DChunk(a.w[i]-a.w[k-i]) * DChunk(b.w[k-i]-b.w[i])
 		}
-		c.w[k] = core.Chunk(t) & BMASK
+		c.w[k] = Chunk(t) & BMASK
 		co = t >> BASEBITS
 	}
-	c.w[2*NLEN-1] = core.Chunk(co)
+	c.w[2*NLEN-1] = Chunk(co)
 
 	return c
 }
@@ -87,129 +89,129 @@ func mul(a *BIG, b *BIG) *DBIG {
 func sqr(a *BIG) *DBIG {
 	c := NewDBIG()
 	//	BIGSQRS+=1;
-	t := core.DChunk(a.w[0]) * core.DChunk(a.w[0])
-	c.w[0] = core.Chunk(t) & BMASK
+	t := DChunk(a.w[0]) * DChunk(a.w[0])
+	c.w[0] = Chunk(t) & BMASK
 	co := t >> BASEBITS
 
 	for j := 1; j < NLEN-1; {
-		t = core.DChunk(a.w[j]) * core.DChunk(a.w[0])
+		t = DChunk(a.w[j]) * DChunk(a.w[0])
 		for i := 1; i < (j+1)/2; i++ {
-			t += core.DChunk(a.w[j-i]) * core.DChunk(a.w[i])
+			t += DChunk(a.w[j-i]) * DChunk(a.w[i])
 		}
 		t += t
 		t += co
-		c.w[j] = core.Chunk(t) & BMASK
+		c.w[j] = Chunk(t) & BMASK
 		co = t >> BASEBITS
 		j++
-		t = core.DChunk(a.w[j]) * core.DChunk(a.w[0])
+		t = DChunk(a.w[j]) * DChunk(a.w[0])
 		for i := 1; i < (j+1)/2; i++ {
-			t += core.DChunk(a.w[j-i]) * core.DChunk(a.w[i])
+			t += DChunk(a.w[j-i]) * DChunk(a.w[i])
 		}
 		t += t
 		t += co
-		t += core.DChunk(a.w[j/2]) * core.DChunk(a.w[j/2])
-		c.w[j] = core.Chunk(t) & BMASK
+		t += DChunk(a.w[j/2]) * DChunk(a.w[j/2])
+		c.w[j] = Chunk(t) & BMASK
 		co = t >> BASEBITS
 		j++
 	}
 
 	for j := NLEN - 1 + (NLEN % 2); j < DNLEN-3; {
-		t = core.DChunk(a.w[NLEN-1]) * core.DChunk(a.w[j-NLEN+1])
+		t = DChunk(a.w[NLEN-1]) * DChunk(a.w[j-NLEN+1])
 		for i := j - NLEN + 2; i < (j+1)/2; i++ {
-			t += core.DChunk(a.w[j-i]) * core.DChunk(a.w[i])
+			t += DChunk(a.w[j-i]) * DChunk(a.w[i])
 		}
 		t += t
 		t += co
-		c.w[j] = core.Chunk(t) & BMASK
+		c.w[j] = Chunk(t) & BMASK
 		co = t >> BASEBITS
 		j++
-		t = core.DChunk(a.w[NLEN-1]) * core.DChunk(a.w[j-NLEN+1])
+		t = DChunk(a.w[NLEN-1]) * DChunk(a.w[j-NLEN+1])
 		for i := j - NLEN + 2; i < (j+1)/2; i++ {
-			t += core.DChunk(a.w[j-i]) * core.DChunk(a.w[i])
+			t += DChunk(a.w[j-i]) * DChunk(a.w[i])
 		}
 		t += t
 		t += co
-		t += core.DChunk(a.w[j/2]) * core.DChunk(a.w[j/2])
-		c.w[j] = core.Chunk(t) & BMASK
+		t += DChunk(a.w[j/2]) * DChunk(a.w[j/2])
+		c.w[j] = Chunk(t) & BMASK
 		co = t >> BASEBITS
 		j++
 	}
 
-	t = core.DChunk(a.w[NLEN-2]) * core.DChunk(a.w[NLEN-1])
+	t = DChunk(a.w[NLEN-2]) * DChunk(a.w[NLEN-1])
 	t += t
 	t += co
-	c.w[DNLEN-3] = core.Chunk(t) & BMASK
+	c.w[DNLEN-3] = Chunk(t) & BMASK
 	co = t >> BASEBITS
 
-	t = core.DChunk(a.w[NLEN-1])*core.DChunk(a.w[NLEN-1]) + co
-	c.w[DNLEN-2] = core.Chunk(t) & BMASK
+	t = DChunk(a.w[NLEN-1])*DChunk(a.w[NLEN-1]) + co
+	c.w[DNLEN-2] = Chunk(t) & BMASK
 	co = t >> BASEBITS
-	c.w[DNLEN-1] = core.Chunk(co)
+	c.w[DNLEN-1] = Chunk(co)
 
 	return c
 }
 
-func monty(m *BIG, mc core.Chunk, d *DBIG) *BIG {
-	var dd [NLEN]core.DChunk
+func monty(m *BIG, mc Chunk, d *DBIG) *BIG {
+	var dd [NLEN]DChunk
 
-	var v [NLEN]core.Chunk
+	var v [NLEN]Chunk
 	b := NewBIG()
 
-	t := core.DChunk(d.w[0])
-	v[0] = (core.Chunk(t) * mc) & BMASK
-	t += core.DChunk(v[0]) * core.DChunk(m.w[0])
-	c := (t >> BASEBITS) + core.DChunk(d.w[1])
-	s := core.DChunk(0)
+	t := DChunk(d.w[0])
+	v[0] = (Chunk(t) * mc) & BMASK
+	t += DChunk(v[0]) * DChunk(m.w[0])
+	c := (t >> BASEBITS) + DChunk(d.w[1])
+	s := DChunk(0)
 
 	for k := 1; k < NLEN; k++ {
-		t = c + s + core.DChunk(v[0])*core.DChunk(m.w[k])
+		t = c + s + DChunk(v[0])*DChunk(m.w[k])
 		for i := k - 1; i > k/2; i-- {
-			t += core.DChunk(v[k-i]-v[i]) * core.DChunk(m.w[i]-m.w[k-i])
+			t += DChunk(v[k-i]-v[i]) * DChunk(m.w[i]-m.w[k-i])
 		}
-		v[k] = (core.Chunk(t) * mc) & BMASK
-		t += core.DChunk(v[k]) * core.DChunk(m.w[0])
-		c = (t >> BASEBITS) + core.DChunk(d.w[k+1])
-		dd[k] = core.DChunk(v[k]) * core.DChunk(m.w[k])
+		v[k] = (Chunk(t) * mc) & BMASK
+		t += DChunk(v[k]) * DChunk(m.w[0])
+		c = (t >> BASEBITS) + DChunk(d.w[k+1])
+		dd[k] = DChunk(v[k]) * DChunk(m.w[k])
 		s += dd[k]
 	}
 	for k := NLEN; k < 2*NLEN-1; k++ {
 		t = c + s
 		for i := NLEN - 1; i >= 1+k/2; i-- {
-			t += core.DChunk(v[k-i]-v[i]) * core.DChunk(m.w[i]-m.w[k-i])
+			t += DChunk(v[k-i]-v[i]) * DChunk(m.w[i]-m.w[k-i])
 		}
-		b.w[k-NLEN] = core.Chunk(t) & BMASK
-		c = (t >> BASEBITS) + core.DChunk(d.w[k+1])
+		b.w[k-NLEN] = Chunk(t) & BMASK
+		c = (t >> BASEBITS) + DChunk(d.w[k+1])
 		s -= dd[k-NLEN+1]
 	}
-	b.w[NLEN-1] = core.Chunk(c) & BMASK
+	b.w[NLEN-1] = Chunk(c) & BMASK
 	return b
 }
 
 /* set this[i]+=x*y+c, and return high part */
-func muladd(a core.Chunk, b core.Chunk, c core.Chunk, r core.Chunk) (core.Chunk, core.Chunk) {
-	var prod = core.DChunk(a)*core.DChunk(b) + core.DChunk(c) + core.DChunk(r)
-	bot := core.Chunk(prod) & BMASK
-	top := core.Chunk(prod >> BASEBITS)
+func muladd(a Chunk, b Chunk, c Chunk, r Chunk) (Chunk, Chunk) {
+	var prod = DChunk(a)*DChunk(b) + DChunk(c) + DChunk(r)
+	bot := Chunk(prod) & BMASK
+	top := Chunk(prod >> BASEBITS)
 	return top, bot
 }
 
 /***************************************************************************/
 
-func (r *BIG) get(i int) core.Chunk {
+func (r *BIG) get(i int) Chunk {
 	return r.w[i]
 }
 
-func (r *BIG) set(i int, x core.Chunk) {
+func (r *BIG) set(i int, x Chunk) {
 	r.w[i] = x
 }
 
-func (r *BIG) xortop(x core.Chunk) {
+func (r *BIG) xortop(x Chunk) {
 	r.w[NLEN-1] ^= x
 }
 
 /* normalise BIG - force all digits < 2^BASEBITS */
-func (r *BIG) norm() core.Chunk {
-	carry := core.Chunk(0)
+func (r *BIG) norm() Chunk {
+	carry := Chunk(0)
 	for i := 0; i < NLEN-1; i++ {
 		d := r.w[i] + carry
 		r.w[i] = d & BMASK
@@ -221,7 +223,7 @@ func (r *BIG) norm() core.Chunk {
 
 /* Shift right by less than a word */
 func (r *BIG) fshr(k uint) int {
-	w := r.w[0] & ((core.Chunk(1) << k) - 1) /* shifted out part */
+	w := r.w[0] & ((Chunk(1) << k) - 1) /* shifted out part */
 	for i := 0; i < NLEN-1; i++ {
 		r.w[i] = (r.w[i] >> k) | ((r.w[i+1] << (BASEBITS - k)) & BMASK)
 	}
@@ -247,7 +249,7 @@ func NewBIG() *BIG {
 	return b
 }
 
-func NewBIGints(x [NLEN]core.Chunk) *BIG {
+func NewBIGints(x [NLEN]Chunk) *BIG {
 	b := new(BIG)
 	for i := 0; i < NLEN; i++ {
 		b.w[i] = x[i]
@@ -257,7 +259,7 @@ func NewBIGints(x [NLEN]core.Chunk) *BIG {
 
 func NewBIGint(x int) *BIG {
 	b := new(BIG)
-	b.w[0] = core.Chunk(x)
+	b.w[0] = Chunk(x)
 	for i := 1; i < NLEN; i++ {
 		b.w[i] = 0
 	}
@@ -282,7 +284,7 @@ func NewBIGdcopy(x *DBIG) *BIG {
 
 /* test for zero */
 func (r *BIG) iszilch() bool {
-	d := core.Chunk(0)
+	d := Chunk(0)
 	for i := 0; i < NLEN; i++ {
 		d |= r.w[i]
 	}
@@ -298,7 +300,7 @@ func (r *BIG) zero() {
 
 /* Test for equal to one */
 func (r *BIG) isunity() bool {
-	d := core.Chunk(0)
+	d := Chunk(0)
 	for i := 1; i < NLEN; i++ {
 		d |= r.w[i]
 	}
@@ -328,37 +330,32 @@ func (r *BIG) dcopy(x *DBIG) {
 }
 
 /* Conditional swap of two bigs depending on d using XOR - no branches */
-func (r *BIG) cswap(b *BIG, d int) core.Chunk {
-	c := core.Chunk(-d)
-	s := core.Chunk(0)
-	v := r.w[0] ^ b.w[1]
-	va := v + v
-	va >>= 1
+func (r *BIG) cswap(b *BIG, d int) Chunk {
+	c := Chunk(-d)
+	s := Chunk(0)
+	v := r.w[0]^b.w[1]
+	va := v+v; va >>= 1;
 	for i := 0; i < NLEN; i++ {
 		t := c & (r.w[i] ^ b.w[i])
-		t ^= v
-		e := r.w[i] ^ t
-		s ^= e // to force calculation of e
-		r.w[i] = e ^ va
-		e = b.w[i] ^ t
-		s ^= e
-		b.w[i] = e ^ va
+		t^=v 
+		e := r.w[i]^t; s^=e  // to force calculation of e
+		r.w[i] = e^va
+		e = b.w[i]^t; s^=e
+		b.w[i] = e^va
 	}
 	return s
 }
 
-func (r *BIG) cmove(g *BIG, d int) core.Chunk {
-	b := core.Chunk(-d)
-	s := core.Chunk(0)
-	v := r.w[0] ^ g.w[1]
-	va := v + v
-	va >>= 1
+func (r *BIG) cmove(g *BIG, d int) Chunk {
+	b := Chunk(-d)
+	s := Chunk(0)
+	v := r.w[0]^g.w[1]
+	va := v+v; va >>= 1;
 	for i := 0; i < NLEN; i++ {
-		t := (r.w[i] ^ g.w[i]) & b
-		t ^= v
-		e := r.w[i] ^ t
-		s ^= e
-		r.w[i] = e ^ va
+		t:=(r.w[i] ^ g.w[i])&b
+		t^=v
+		e := r.w[i]^t; s^=e
+		r.w[i] = e^va
 	}
 	return s
 }
@@ -469,15 +466,15 @@ func (r *BIG) Plus(x *BIG) *BIG {
 /* this+=x, where x is int */
 func (r *BIG) inc(x int) {
 	r.norm()
-	r.w[0] += core.Chunk(x)
+	r.w[0] += Chunk(x)
 }
 
 /* this*=c and catch overflow in DBIG */
 func (r *BIG) pxmul(c int) *DBIG {
 	m := NewDBIG()
-	carry := core.Chunk(0)
+	carry := Chunk(0)
 	for j := 0; j < NLEN; j++ {
-		carry, m.w[j] = muladd(r.w[j], core.Chunk(c), carry, m.w[j])
+		carry, m.w[j] = muladd(r.w[j], Chunk(c), carry, m.w[j])
 	}
 	m.w[NLEN] = carry
 	return m
@@ -509,24 +506,24 @@ func (r *BIG) rsub(x *BIG) {
 /* this-=x, where x is int */
 func (r *BIG) dec(x int) {
 	r.norm()
-	r.w[0] -= core.Chunk(x)
+	r.w[0] -= Chunk(x)
 }
 
 /* this*=x, where x is small int<NEXCESS */
 func (r *BIG) imul(c int) {
 	for i := 0; i < NLEN; i++ {
-		r.w[i] *= core.Chunk(c)
+		r.w[i] *= Chunk(c)
 	}
 }
 
 /* this*=x, where x is >NEXCESS */
-func (r *BIG) pmul(c int) core.Chunk {
-	carry := core.Chunk(0)
+func (r *BIG) pmul(c int) Chunk {
+	carry := Chunk(0)
 	//	r.norm();
 	for i := 0; i < NLEN; i++ {
 		ak := r.w[i]
 		r.w[i] = 0
-		carry, r.w[i] = muladd(ak, core.Chunk(c), carry, r.w[i])
+		carry, r.w[i] = muladd(ak, Chunk(c), carry, r.w[i])
 	}
 	return carry
 }
@@ -549,9 +546,9 @@ func frombytearray(b []byte, n int) *BIG {
 	for i := 0; i < int(MODBYTES); i++ {
 		m.fshl(8)
 		if i < l {
-			m.w[0] += core.Chunk(int(b[i+n] & 0xff))
+			m.w[0] += Chunk(int(b[i+n] & 0xff))
 		} else {
-			m.w[0] += core.Chunk(int(0 & 0xff))
+			m.w[0] += Chunk(int(0 & 0xff))
 		}
 	}
 	return m
@@ -567,9 +564,9 @@ func FromBytes(b []byte) *BIG {
 
 /* divide by 3 */
 func (r *BIG) div3() int {
-	carry := core.Chunk(0)
+	carry := Chunk(0)
 	r.norm()
-	base := (core.Chunk(1) << BASEBITS)
+	base := (Chunk(1) << BASEBITS)
 	for i := NLEN - 1; i >= 0; i-- {
 		ak := (carry*base + r.w[i])
 		r.w[i] = ak / 3
@@ -580,7 +577,7 @@ func (r *BIG) div3() int {
 
 /* return a*b where result fits in a BIG */
 func smul(a *BIG, b *BIG) *BIG {
-	carry := core.Chunk(0)
+	carry := Chunk(0)
 	c := NewBIG()
 	for i := 0; i < NLEN; i++ {
 		carry = 0
@@ -595,8 +592,8 @@ func smul(a *BIG, b *BIG) *BIG {
 
 /* Compare a and b, return 0 if a==b, -1 if a<b, +1 if a>b. Inputs must be normalised */
 func Comp(a *BIG, b *BIG) int {
-	gt := core.Chunk(0)
-	eq := core.Chunk(1)
+	gt := Chunk(0)
+	eq := Chunk(1)
 	for i := NLEN - 1; i >= 0; i-- {
 		gt |= ((b.w[i] - a.w[i]) >> BASEBITS) & eq
 		eq &= ((b.w[i] ^ a.w[i]) - 1) >> BASEBITS
@@ -611,8 +608,8 @@ func (r *BIG) parity() int {
 
 /* return n-th bit */
 func (r *BIG) bit(n int) int {
-	return int((r.w[n/int(BASEBITS)] & (core.Chunk(1) << (uint(n) % BASEBITS))) >> (uint(n) % BASEBITS))
-	//	if (r.w[n/int(BASEBITS)] & (core.Chunk(1) << (uint(n) % BASEBITS))) > 0 {
+	return int((r.w[n/int(BASEBITS)] & (Chunk(1) << (uint(n) % BASEBITS))) >> (uint(n) % BASEBITS))
+	//	if (r.w[n/int(BASEBITS)] & (Chunk(1) << (uint(n) % BASEBITS))) > 0 {
 	//		return 1
 	//	}
 	//	return 0
@@ -629,7 +626,7 @@ func (r *BIG) lastbits(n int) int {
 func (r *BIG) mod2m(m uint) {
 	wd := int(m / BASEBITS)
 	bt := m % BASEBITS
-	msk := (core.Chunk(1) << bt) - 1
+	msk := (Chunk(1) << bt) - 1
 	r.w[wd] &= msk
 	for i := wd + 1; i < NLEN; i++ {
 		r.w[i] = 0
@@ -687,7 +684,7 @@ func (r *BIG) ctmod(m *BIG, bd uint) {
 		sr.copy(r)
 		sr.sub(c)
 		sr.norm()
-		r.cmove(sr, int(1-((sr.w[NLEN-1]>>uint(core.CHUNK-1))&1)))
+		r.cmove(sr, int(1-((sr.w[NLEN-1]>>uint(CHUNK-1))&1)))
 		if k == 0 {
 			break
 		}
@@ -721,7 +718,7 @@ func (r *BIG) ctdiv(m *BIG, bd uint) {
 		sr.copy(a)
 		sr.sub(c)
 		sr.norm()
-		d := int(1 - ((sr.w[NLEN-1] >> uint(core.CHUNK-1)) & 1))
+		d := int(1 - ((sr.w[NLEN-1] >> uint(CHUNK-1)) & 1))
 		a.cmove(sr, d)
 		sr.copy(r)
 		sr.add(e)
@@ -758,7 +755,7 @@ func Random(rng *core.RAND) *BIG {
 			r >>= 1
 		}
 
-		b := core.Chunk(int(r & 1))
+		b := Chunk(int(r & 1))
 		m.shl(1)
 		m.w[0] += b
 		j++
@@ -779,7 +776,7 @@ func Randomnum(q *BIG, rng *core.RAND) *BIG {
 			r >>= 1
 		}
 
-		b := core.Chunk(int(r & 1))
+		b := Chunk(int(r & 1))
 		d.shl(1)
 		d.w[0] += b
 		j++
@@ -1020,5 +1017,5 @@ func ssn(r *BIG, a *BIG, m *BIG) int {
 	}
 	m.w[n] >>= 1
 	r.w[n] = a.w[n] - m.w[n] + carry
-	return int((r.w[n] >> uint(core.CHUNK-1)) & 1)
+	return int((r.w[n] >> uint(CHUNK-1)) & 1)
 }

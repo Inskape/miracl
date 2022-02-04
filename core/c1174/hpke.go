@@ -23,7 +23,7 @@
 
 package c1174
 
-
+//import "fmt"
 import "miracl/core"
 
 func reverse(X []byte) {

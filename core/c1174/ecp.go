@@ -19,7 +19,7 @@
 
 package c1174
 
-
+//import "fmt"
 /* Elliptic Curve Point Structure */
 
 type ECP struct {

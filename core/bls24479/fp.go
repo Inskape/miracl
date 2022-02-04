@@ -173,9 +173,9 @@ func mod(d *DBIG) *BIG {
 // Out by at most 2.
 // Note that MAXXES is bounded to be 2-bits less than half a word
 func quo(n *BIG, m *BIG) int {
-	var num core.Chunk
-	var den core.Chunk
-	hb := uint(core.CHUNK) / 2
+	var num Chunk
+	var den Chunk
+	hb := uint(CHUNK) / 2
 	if TBITS < hb {
 		sh := hb - TBITS
 		num = (n.w[NLEN-1] << sh) | (n.w[NLEN-2] >> (BASEBITS - sh))

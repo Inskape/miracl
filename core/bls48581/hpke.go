@@ -23,7 +23,6 @@
 
 package bls48581
 
-
 import "miracl/core"
 
 func reverse(X []byte) {

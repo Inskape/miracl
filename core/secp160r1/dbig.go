@@ -21,10 +21,9 @@
 
 package secp160r1
 
-import (
-	"miracl/core"
-	"strconv"
-)
+import "strconv"
+
+//import "fmt"
 
 func NewDBIG() *DBIG {
 	b := new(DBIG)
@@ -58,7 +57,7 @@ func NewDBIGscopy(x *BIG) *DBIG {
 
 /* normalise this */
 func (r *DBIG) norm() {
-	carry := core.Chunk(0)
+	carry := Chunk(0)
 	for i := 0; i < DNLEN-1; i++ {
 		d := r.w[i] + carry
 		r.w[i] = d & BMASK
@@ -78,30 +77,28 @@ func (r *DBIG) split(n uint) *BIG {
 		carry = (r.w[i] << (BASEBITS - m)) & BMASK
 		t.set(i-NLEN+1, nw)
 	}
-	r.w[NLEN-1] &= ((core.Chunk(1) << m) - 1)
+	r.w[NLEN-1] &= ((Chunk(1) << m) - 1)
 	return t
 }
 
-func (r *DBIG) cmove(g *DBIG, d int) core.Chunk {
-	var b = core.Chunk(-d)
-	s := core.Chunk(0)
-	v := r.w[0] ^ g.w[1]
-	va := v + v
-	va >>= 1
+func (r *DBIG) cmove(g *DBIG, d int) Chunk {
+	var b = Chunk(-d)
+	s := Chunk(0)
+	v := r.w[0]^g.w[1]
+	va := v+v; va >>= 1;
 	for i := 0; i < DNLEN; i++ {
-		t := (r.w[i] ^ g.w[i]) & b
-		t ^= v
-		e := r.w[i] ^ t
-		s ^= e
-		r.w[i] = e ^ va
+		t :=(r.w[i] ^ g.w[i])&b
+		t^=v
+		e := r.w[i]^t; s^=e
+		r.w[i] = e^va
 	}
 	return s
 }
 
 /* Compare a and b, return 0 if a==b, -1 if a<b, +1 if a>b. Inputs must be normalised */
 func dcomp(a *DBIG, b *DBIG) int {
-	gt := core.Chunk(0)
-	eq := core.Chunk(1)
+	gt := Chunk(0)
+	eq := Chunk(1)
 	for i := DNLEN - 1; i >= 0; i-- {
 		gt |= ((b.w[i] - a.w[i]) >> BASEBITS) & eq
 		eq &= ((b.w[i] ^ a.w[i]) - 1) >> BASEBITS
@@ -174,10 +171,10 @@ func (r *DBIG) shr(k uint) {
 	}
 }
 
-func (r *DBIG) ctmod(m *BIG, bd uint) *BIG {
-	k := bd
+func (r *DBIG) ctmod(m *BIG,bd uint) *BIG {
+	k:=bd
 	r.norm()
-	c := NewDBIGscopy(m)
+	c :=NewDBIGscopy(m)
 	dr := NewDBIG()
 
 	c.shl(k)
@@ -186,10 +183,8 @@ func (r *DBIG) ctmod(m *BIG, bd uint) *BIG {
 		dr.copy(r)
 		dr.sub(c)
 		dr.norm()
-		r.cmove(dr, int(1-((dr.w[DNLEN-1]>>uint(core.CHUNK-1))&1)))
-		if k == 0 {
-			break
-		}
+		r.cmove(dr, int(1-((dr.w[DNLEN-1]>>uint(CHUNK-1))&1)))
+		if k==0 {break}
 		k -= 1
 		c.shr(1)
 	}
@@ -198,15 +193,13 @@ func (r *DBIG) ctmod(m *BIG, bd uint) *BIG {
 
 /* reduces this DBIG mod a BIG, and returns the BIG */
 func (r *DBIG) Mod(m *BIG) *BIG {
-	k := r.nbits() - m.nbits()
-	if k < 0 {
-		k = 0
-	}
-	return r.ctmod(m, uint(k))
+	k:=r.nbits()-m.nbits()
+	if k<0 {k=0}
+	return r.ctmod(m,uint(k))
 }
 
-func (r *DBIG) ctdiv(m *BIG, bd uint) *BIG {
-	k := bd
+func (r *DBIG) ctdiv(m *BIG,bd uint) *BIG {
+	k:=bd
 	c := NewDBIGscopy(m)
 	a := NewBIGint(0)
 	e := NewBIGint(1)
@@ -221,15 +214,13 @@ func (r *DBIG) ctdiv(m *BIG, bd uint) *BIG {
 		dr.copy(r)
 		dr.sub(c)
 		dr.norm()
-		d := int(1 - ((dr.w[DNLEN-1] >> uint(core.CHUNK-1)) & 1))
+		d := int(1 - ((dr.w[DNLEN-1] >> uint(CHUNK-1)) & 1))
 		r.cmove(dr, d)
 		sr.copy(a)
 		sr.add(e)
 		sr.norm()
-		a.cmove(sr, d)
-		if k == 0 {
-			break
-		}
+		a.cmove(sr, d)	
+		if k==0 {break}
 		k -= 1
 		c.shr(1)
 		e.shr(1)
@@ -239,11 +230,9 @@ func (r *DBIG) ctdiv(m *BIG, bd uint) *BIG {
 
 /* return this/c */
 func (r *DBIG) div(m *BIG) *BIG {
-	k := r.nbits() - m.nbits()
-	if k < 0 {
-		k = 0
-	}
-	return r.ctdiv(m, uint(k))
+	k:=r.nbits()-m.nbits()
+	if k<0 {k=0}
+	return r.ctdiv(m,uint(k))
 }
 
 /* Convert to Hex String */
@@ -293,7 +282,7 @@ func DBIG_fromBytes(b []byte) *DBIG {
 	m := NewDBIG()
 	for i := 0; i < len(b); i++ {
 		m.shl(8)
-		m.w[0] += core.Chunk(int(b[i] & 0xff))
+		m.w[0] += Chunk(int(b[i] & 0xff))
 	}
 	return m
 }

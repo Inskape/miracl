@@ -21,7 +21,7 @@
 
 package bls48286
 
-
+//import "fmt"
 
 // Point doubling for pairings
 func dbl(A *ECP8, AA *FP8, BB *FP8, CC *FP8) {
@@ -692,11 +692,11 @@ func glv(ee *BIG) []*BIG {
 	x2 := smul(x, x)
 	x = smul(x2, x2)
 	x2 = smul(x, x)
-	bd := uint(q.nbits() - x2.nbits())
+	bd := uint(q.nbits()-x2.nbits())
 	u = append(u, NewBIGcopy(ee))
-	u[0].ctmod(x2, bd)
+	u[0].ctmod(x2,bd)
 	u = append(u, NewBIGcopy(ee))
-	u[1].ctdiv(x2, bd)
+	u[1].ctdiv(x2,bd)
 	u[1].rsub(q)
 	return u
 }
@@ -707,12 +707,12 @@ func gs(ee *BIG) []*BIG {
 
 	q := NewBIGints(CURVE_Order)
 	x := NewBIGints(CURVE_Bnx)
-	bd := uint(q.nbits() - x.nbits())
+	bd := uint(q.nbits()-x.nbits())
 	w := NewBIGcopy(ee)
 	for i := 0; i < 15; i++ {
 		u = append(u, NewBIGcopy(w))
-		u[i].ctmod(x, bd)
-		w.ctdiv(x, bd)
+		u[i].ctmod(x,bd)
+		w.ctdiv(x,bd)
 	}
 	u = append(u, NewBIGcopy(w))
 	if SIGN_OF_X == NEGATIVEX {
@@ -733,8 +733,7 @@ func gs(ee *BIG) []*BIG {
 func G1mul(P *ECP, e *BIG) *ECP {
 	var R *ECP
 	q := NewBIGints(CURVE_Order)
-	ee := NewBIGcopy(e)
-	ee.Mod(q)
+	ee := NewBIGcopy(e); ee.Mod(q)
 	if USE_GLV {
 		R = NewECP()
 		R.Copy(P)
@@ -767,7 +766,7 @@ func G1mul(P *ECP, e *BIG) *ECP {
 		R = R.Mul2(u[0], Q, u[1])
 
 	} else {
-		R = P.clmul(e, q)
+		R = P.clmul(e,q)
 	}
 	return R
 }
@@ -776,8 +775,7 @@ func G1mul(P *ECP, e *BIG) *ECP {
 func G2mul(P *ECP8, e *BIG) *ECP8 {
 	var R *ECP8
 	q := NewBIGints(CURVE_Order)
-	ee := NewBIGcopy(e)
-	ee.Mod(q)
+	ee := NewBIGcopy(e); ee.Mod(q)
 	if USE_GS_G2 {
 		var Q []*ECP8
 
@@ -817,8 +815,7 @@ func G2mul(P *ECP8, e *BIG) *ECP8 {
 func GTpow(d *FP48, e *BIG) *FP48 {
 	var r *FP48
 	q := NewBIGints(CURVE_Order)
-	ee := NewBIGcopy(e)
-	ee.Mod(q)
+	ee:= NewBIGcopy(e); ee.Mod(q)
 	if USE_GS_GT {
 		var g []*FP48
 		f := NewFP2bigs(NewBIGints(Fra), NewBIGints(Frb))
@@ -851,72 +848,54 @@ func GTpow(d *FP48, e *BIG) *FP48 {
 
 /* test G1 group membership */
 func G1member(P *ECP) bool {
-	if P.Is_infinity() {
-		return false
-	}
+	if P.Is_infinity() {return false}
 	x := NewBIGints(CURVE_Bnx)
 	cru := NewFPbig(NewBIGints(CRu))
-	W := NewECP()
-	W.Copy(P)
+	W := NewECP(); W.Copy(P)
 	W.getx().mul(cru)
-	T := P.mul(x)
-	if P.Equals(T) {
-		return false
-	} // P is of low order
-	T = T.mul(x)
-	T = T.mul(x)
-	T = T.mul(x)
-	T = T.mul(x)
-	T = T.mul(x)
-	T = T.mul(x)
-	T = T.mul(x)
-	T.Neg()
-	if !W.Equals(T) {
-		return false
-	}
+	T := P.mul(x) 
+	if P.Equals(T) {return false}    // P is of low order   		
+	T=T.mul(x); T=T.mul(x); T=T.mul(x); T=T.mul(x); T=T.mul(x); T=T.mul(x); T=T.mul(x); T.Neg()
+	if !W.Equals(T) {return false}
 
-	// Not needed
-	//	W.Add(P);
-	//	T.getx().mul(cru)
-	//	W.Add(T)
-	//	if !W.Is_infinity() {return false}
-	/*
-		q := NewBIGints(CURVE_Order)
-		if P.Is_infinity() {return false}
-		W:=P.mul(q)
-		if !W.Is_infinity() {return false} */
+// Not needed
+//	W.Add(P);
+//	T.getx().mul(cru)
+//	W.Add(T)
+//	if !W.Is_infinity() {return false}
+/*
+	q := NewBIGints(CURVE_Order)
+	if P.Is_infinity() {return false}
+	W:=P.mul(q)
+	if !W.Is_infinity() {return false} */
 	return true
 }
 
 /* test G2 group membership */
 func G2member(P *ECP8) bool {
-	F := ECP8_frob_constants()
+	F := ECP8_frob_constants()	
 	x := NewBIGints(CURVE_Bnx)
-	W := NewECP8()
-	W.Copy(P)
-	W.frob(F, 1)
+	W := NewECP8(); W.Copy(P); W.frob(F,1)
 	T := P.mul(x)
 	if SIGN_OF_X == NEGATIVEX {
 		T.neg()
 	}
-	/*
-	   	R:=NewECP8(); R.Copy(W)
-	       R.frob(F,1)
-	       W.Sub(R)
-	       R.Copy(T)
-	       R.frob(F,1)
-	       W.Add(R)
-	*/
-	if !W.Equals(T) {
-		return false
-	}
+/*
+	R:=NewECP8(); R.Copy(W)
+    R.frob(F,1)
+    W.Sub(R)
+    R.Copy(T)
+    R.frob(F,1)
+    W.Add(R)
+*/
+	if !W.Equals(T) {return false}
 	return true
-	/*
-		q := NewBIGints(CURVE_Order)
-		if P.Is_infinity() {return false}
-		W:=P.mul(q)
-		if !W.Is_infinity() {return false}
-		return true */
+/*
+	q := NewBIGints(CURVE_Order)
+	if P.Is_infinity() {return false}
+	W:=P.mul(q)
+	if !W.Is_infinity() {return false}
+	return true */
 }
 
 /* Check that m is in cyclotomic sub-group */
@@ -953,23 +932,20 @@ func GTmember(m *FP48) bool {
 	f := NewFP2bigs(NewBIGints(Fra), NewBIGints(Frb))
 	x := NewBIGints(CURVE_Bnx)
 
-	r := NewFP48copy(m)
-	r.frob(f, 1)
+	r := NewFP48copy(m); r.frob(f,1)
 	t := m.Pow(x)
 
 	if SIGN_OF_X == NEGATIVEX {
 		t.conj()
 	}
-	if !r.Equals(t) {
-		return false
-	}
+	if !r.Equals(t) {return false}
 	return true
 
-	/*
-		q := NewBIGints(CURVE_Order)
-		r := m.Pow(q)
-		if !r.Isunity() {
-			return false
-		}
-		return true */
+/*
+	q := NewBIGints(CURVE_Order)
+	r := m.Pow(q)
+	if !r.Isunity() {
+		return false
+	}
+	return true */
 }

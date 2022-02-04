@@ -19,6 +19,7 @@
 
 package ed25519
 
+//import "fmt"
 /* Elliptic Curve Point Structure */
 
 type ECP struct {

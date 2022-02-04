@@ -25,7 +25,7 @@ package bn254cx
 
 import "miracl/core"
 
-
+//import "fmt"
 
 type FP2 struct {
 	a *FP

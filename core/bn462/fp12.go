@@ -22,7 +22,7 @@
 
 package bn462
 
-
+//import "fmt"
 
 type FP12 struct {
 	a     *FP4

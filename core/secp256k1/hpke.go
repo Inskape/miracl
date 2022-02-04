@@ -23,7 +23,7 @@
 
 package secp256k1
 
-
+//import "fmt"
 import "miracl/core"
 
 func reverse(X []byte) {

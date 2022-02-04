@@ -22,7 +22,7 @@
 
 package bn254cx
 
-
+//import "fmt"
 
 type FP12 struct {
 	a     *FP4

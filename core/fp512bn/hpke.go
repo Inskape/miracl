@@ -23,7 +23,7 @@
 
 package fp512bn
 
-
+//import "fmt"
 import "miracl/core"
 
 func reverse(X []byte) {

@@ -23,7 +23,7 @@ package fp512bn
 
 import "miracl/core"
 
-
+//import "fmt"
 const MFS int = int(MODBYTES)
 const MGS int = int(MODBYTES)
 const BAD_PARAMS int = -11

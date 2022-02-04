@@ -21,7 +21,7 @@
 
 package bls24479
 
-
+//import "fmt"
 
 type ECP4 struct {
 	x *FP4

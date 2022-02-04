@@ -30,6 +30,8 @@
 
 package core
 
+//import "fmt"
+
 const SHA3_HASH224 int = 28
 const SHA3_HASH256 int = 32
 const SHA3_HASH384 int = 48

@@ -24,26 +24,24 @@
 
 package c1665
 
-import "miracl/core"
-
 // Base Bits= 60
-var Modulus = [...]core.Chunk{0xFFFFFFFFFFFFFFB, 0xFFFFFFFFFFFFFFF, 0x3FFFFFFFFFFF}
-var R2modp = [...]core.Chunk{0x190000000, 0x0, 0x0}
-var ROI = [...]core.Chunk{0xFFFFFFFFFFFFFFA, 0xFFFFFFFFFFFFFFF, 0x3FFFFFFFFFFF}
+var Modulus = [...]Chunk{0xFFFFFFFFFFFFFFB, 0xFFFFFFFFFFFFFFF, 0x3FFFFFFFFFFF}
+var R2modp = [...]Chunk{0x190000000, 0x0, 0x0}
+var ROI = [...]Chunk{0xFFFFFFFFFFFFFFA, 0xFFFFFFFFFFFFFFF, 0x3FFFFFFFFFFF}
 
-const MConst core.Chunk = 0x5
+const MConst Chunk = 0x5
 
 //*** rom curve parameters *****
 // Base Bits= 60
 
 const CURVE_Cof_I int = 4
 
-var CURVE_Cof = [...]core.Chunk{0x4, 0x0, 0x0}
+var CURVE_Cof = [...]Chunk{0x4, 0x0, 0x0}
 
 const CURVE_B_I int = 5766
 
-var CURVE_B = [...]core.Chunk{0x1686, 0x0, 0x0}
-var CURVE_Order = [...]core.Chunk{0x80FF0A99DBA8B27, 0xFFFFFFFFFD5EF01, 0xFFFFFFFFFFF}
-var CURVE_Gx = [...]core.Chunk{0x671B9DBF9D52398, 0x9A0618EE0F666C, 0x14C94DA505B8}
-var CURVE_Gy = [...]core.Chunk{0xC7087B244920345, 0x13BFC7739D62DC2, 0x29414549BC0A}
-var CURVE_HTPC = [...]core.Chunk{0x1, 0x0, 0x0}
+var CURVE_B = [...]Chunk{0x1686, 0x0, 0x0}
+var CURVE_Order = [...]Chunk{0x80FF0A99DBA8B27, 0xFFFFFFFFFD5EF01, 0xFFFFFFFFFFF}
+var CURVE_Gx = [...]Chunk{0x671B9DBF9D52398, 0x9A0618EE0F666C, 0x14C94DA505B8}
+var CURVE_Gy = [...]Chunk{0xC7087B244920345, 0x13BFC7739D62DC2, 0x29414549BC0A}
+var CURVE_HTPC = [...]Chunk{0x1, 0x0, 0x0}
