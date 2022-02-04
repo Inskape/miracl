@@ -467,4 +467,4 @@
 // 	mpin_BLS24479(rng)
 // 	mpin_BLS48556(rng)
 // }
-package main
+package miracl
