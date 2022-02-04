@@ -24,7 +24,7 @@ package rsa4096
 
 //import "fmt"
 //import "os"
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 //const FFLEN int = @ML@
 

@@ -24,7 +24,7 @@
 package nums256w
 
 //import "fmt"
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 func reverse(X []byte) {
 	lx := len(X)

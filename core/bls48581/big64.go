@@ -28,7 +28,7 @@ import (
 	"math/bits"
 	"strconv"
 
-	"miracl/core"
+	"github.com/Inskape/miracl/core"
 )
 
 //import "fmt"

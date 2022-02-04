@@ -25,8 +25,9 @@ package core_test
 import (
 	"bytes"
 	"encoding/hex"
-	"miracl/core"
 	"testing"
+
+	"github.com/Inskape/miracl/core"
 )
 
 var (

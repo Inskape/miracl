@@ -22,7 +22,7 @@
 
 package nums512e
 
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 type FP struct {
 	x   *BIG

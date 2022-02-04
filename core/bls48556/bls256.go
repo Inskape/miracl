@@ -25,7 +25,7 @@
 
 package bls48556
 
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 //import "fmt"
 

@@ -38,9 +38,10 @@ package bls48556_test
 
 import (
 	"encoding/hex"
-	"miracl/core"
 	"miracl/core/bls48556"
 	"testing"
+
+	"github.com/Inskape/miracl/core"
 )
 
 var (

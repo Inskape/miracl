@@ -26,8 +26,6 @@ package bn254
 
 import (
 	"strconv"
-
-	"miracl/core"
 )
 
 //import "fmt"

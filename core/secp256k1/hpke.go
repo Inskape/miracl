@@ -24,7 +24,7 @@
 package secp256k1
 
 //import "fmt"
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 func reverse(X []byte) {
 	lx := len(X)

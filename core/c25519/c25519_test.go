@@ -21,9 +21,10 @@ package c25519_test
 
 import (
 	"encoding/hex"
-	"miracl/core"
 	"miracl/core/c25519"
 	"testing"
+
+	"github.com/Inskape/miracl/core"
 )
 
 var (

@@ -21,7 +21,7 @@
 
 package bn462
 
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 //import "fmt"
 const MFS int = int(MODBYTES)

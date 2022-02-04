@@ -25,7 +25,7 @@
 
 package fp256bn
 
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 //import "fmt"
 

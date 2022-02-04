@@ -22,9 +22,10 @@ package ed25519_test
 import (
 	"bytes"
 	"encoding/hex"
-	"miracl/core"
 	"miracl/core/ed25519"
 	"testing"
+
+	"github.com/Inskape/miracl/core"
 )
 
 var (

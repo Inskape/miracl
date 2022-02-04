@@ -22,7 +22,7 @@
 package secp256k1
 
 //import "fmt"
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 const INVALID_PUBLIC_KEY int = -2
 const ERROR int = -3

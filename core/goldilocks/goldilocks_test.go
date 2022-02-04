@@ -24,9 +24,10 @@ package goldilocks_test
 import (
 	"bytes"
 	"encoding/hex"
-	"miracl/core"
 	"miracl/core/goldilocks"
 	"testing"
+
+	"github.com/Inskape/miracl/core"
 )
 
 var (

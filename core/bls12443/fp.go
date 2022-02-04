@@ -22,7 +22,7 @@
 
 package bls12443
 
-import "miracl/core"
+import "github.com/Inskape/miracl/core"
 
 type FP struct {
 	x   *BIG
