@@ -24,10 +24,10 @@ package nist256_test
 import (
 	"bytes"
 	"encoding/hex"
-	"miracl/core/nist256"
 	"testing"
 
 	"github.com/Inskape/miracl/core"
+	"github.com/Inskape/miracl/core/nist256"
 )
 
 var (

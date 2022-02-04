@@ -21,10 +21,10 @@ package nist521_test
 
 import (
 	"encoding/hex"
-	"miracl/core/nist521"
 	"testing"
 
 	"github.com/Inskape/miracl/core"
+	"github.com/Inskape/miracl/core/nist521"
 )
 
 var (

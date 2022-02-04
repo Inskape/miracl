@@ -38,10 +38,10 @@ package bn254_test
 
 import (
 	"encoding/hex"
-	"miracl/core/bn254"
 	"testing"
 
 	"github.com/Inskape/miracl/core"
+	"github.com/Inskape/miracl/core/bn254"
 )
 
 var (

@@ -25,10 +25,10 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"miracl/core/rsa2048"
 	"testing"
 
 	"github.com/Inskape/miracl/core"
+	"github.com/Inskape/miracl/core/rsa2048"
 )
 
 var (
