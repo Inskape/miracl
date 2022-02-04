@@ -69,7 +69,7 @@ func TestBN254(t *testing.T) {
 	}
 
 	t.Logf("Modulus size %d bits", bn254.MODBITS)
-	t.Logf("%d bit build", core.CHUNK)
+	t.Logf("%d bit build", bn254.CHUNK)
 
 	G := bn254.ECP_generator()
 	r := bn254.NewBIGints(bn254.CURVE_Order)

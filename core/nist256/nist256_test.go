@@ -68,7 +68,7 @@ func TestNist256(t *testing.T) {
 	}
 
 	t.Logf("Modulus size %d bits", nist256.MODBITS)
-	t.Logf("%d bit build", core.CHUNK)
+	t.Logf("%d bit build", nist256.CHUNK)
 
 	var rw *nist256.FP
 	var WP *nist256.ECP

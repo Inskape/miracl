@@ -68,7 +68,7 @@ func TestGoldilocks(t *testing.T) {
 	}
 
 	t.Logf("Modulus size %d bits", goldilocks.MODBITS)
-	t.Logf("%d bit build", core.CHUNK)
+	t.Logf("%d bit build", goldilocks.CHUNK)
 
 	var rw *goldilocks.FP
 	var WP *goldilocks.ECP

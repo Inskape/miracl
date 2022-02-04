@@ -66,7 +66,7 @@ func TestEd25519(t *testing.T) {
 	}
 
 	t.Logf("Modulus size %d bits", ed25519.MODBITS)
-	t.Logf("%d bit build", core.CHUNK)
+	t.Logf("%d bit build", ed25519.CHUNK)
 
 	var rw *ed25519.FP
 	var WP *ed25519.ECP

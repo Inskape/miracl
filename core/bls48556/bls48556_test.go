@@ -69,7 +69,7 @@ func TestBLS48556(t *testing.T) {
 	}
 
 	t.Logf("Modulus size %d bits", bls48556.MODBITS)
-	t.Logf("%d bit build", core.CHUNK)
+	t.Logf("%d bit build", bls48556.CHUNK)
 
 	G := bls48556.ECP_generator()
 	r := bls48556.NewBIGints(bls48556.CURVE_Order)
